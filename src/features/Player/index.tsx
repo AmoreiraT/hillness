@@ -1,66 +1,61 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useSphere } from '@react-three/cannon';
-import FirstPersonControls from '../../shared/utils/FirstPersonControls';
+import FirstPersonControls, {
+  handleMouseWheel,
+} from '../../shared/utils/FirstPersonControls';
+import { handleMouseMove } from './../../shared/utils/FirstPersonControls';
+import { isWithinBounds } from './../../shared/utils/isWithinBounds';
+
+interface Props {
+  camera: THREE.PerspectiveCamera;
+}
 
 const Player: React.FC = () => {
-  const { camera } = useThree();
-  const [ref, api] = useSphere(() => ({
+  const { scene } = useThree();
+  const [ref] = useSphere(() => ({
     mass: 1,
-    position: [0, 5, 0],
-    args: [1],
-    fixedRotation: true,
+    position: [0, 1, 0],
+    type: 'Dynamic',
   }));
+  const camera = useThree((state) => state.camera as THREE.PerspectiveCamera);
 
-  const velocity = useRef([0, 0, 0]);
-  const scrollSpeed = useRef(0);
-  const mountainSize = 50; // Define the mountain size
-
-  useEffect(() => {
-    const unsubscribe = api.velocity.subscribe((newVelocity) => {
-      velocity.current = newVelocity;
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, [api.velocity]);
-
-  useEffect(() => {
-    const handleScroll = (event: WheelEvent) => {
-      scrollSpeed.current = event.deltaY * -0.01;
+  React.useEffect(() => {
+    const onMouseMove = (event: MouseEvent) => {
+      handleMouseMove(event, camera);
     };
 
-    window.addEventListener('wheel', handleScroll);
+    const onMouseWheel = (event: WheelEvent) => {
+      handleMouseWheel(event, camera);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('wheel', onMouseWheel);
 
     return () => {
-      window.removeEventListener('wheel', handleScroll);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('wheel', onMouseWheel);
     };
-  }, []);
+  }, [camera]);
 
-  useFrame(() => {
-    const newPosition = ref.current!.position.clone();
-    newPosition.z += scrollSpeed.current;
-
-    // Check if the new position is within the mountain boundaries
-    if (
-      newPosition.x >= -mountainSize / 2 &&
-      newPosition.x <= mountainSize / 2 &&
-      newPosition.z >= -mountainSize / 2 &&
-      newPosition.z <= mountainSize / 2
-    ) {
-      ref.current!.position.copy(newPosition);
+  React.useEffect(() => {
+    if (ref.current && camera) {
+      camera.position.set(
+        ref.current.position.x,
+        ref.current.position.y + 1.5,
+        ref.current.position.z
+      );
+      ref.current.add(camera);
+      scene.add(ref.current);
     }
-
-    camera.position.copy(ref.current!.position);
-    camera.position.y += 2;
-    scrollSpeed.current *= 0.9; // Slow down the scroll speed gradually
-  });
+  }, [ref, camera, scene]);
 
   return (
-    <>
-      <FirstPersonControls />
-      <mesh ref={() => ref} />
-    </>
+    <mesh ref={() => ref} receiveShadow castShadow>
+      <sphereGeometry args={[1, 32, 32]} />
+      <meshStandardMaterial color="lightblue" />
+    </mesh>
   );
 };
 
