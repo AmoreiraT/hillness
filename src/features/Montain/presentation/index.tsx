@@ -1,46 +1,57 @@
 // Mountain.tsx
-import React, { useMemo } from 'react';
-import { Plane } from '@react-three/drei';
-import { PlaneBufferGeometryProps } from '@react-three/fiber';
+
+import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
+import { Mesh, BufferGeometry } from 'three';
+import { Vector3 } from 'three';
 
-const Mountain: React.FC<{ apiData: { x: number; y: number; z: number } }> = ({
-  apiData,
-}) => {
-  const geometry = useMemo(() => {
-    const geom = new THREE.PlaneGeometry(50, 50, 50, 50);
-    geom.rotateX(-Math.PI / 2);
+interface MountainProps {
+  apiData: Array<[number, number, number]>;
+  position: [number, number, number];
+}
 
-    // Atualiza a geometria do plano com base nos dados da API
-    for (
-      let i = 0;
-      i < (geom.attributes.position as PlaneBufferGeometryProps).array.length;
-      i += 3
-    ) {
-      const x = (geom.attributes.position as PlaneBufferGeometryProps).array[i];
-      const z = (geom.attributes.position as PlaneBufferGeometryProps).array[
-        i + 2
-      ];
+const Mountain: React.FC<MountainProps> = ({ apiData, position }) => {
+  const meshRef = useRef<Mesh>(null);
+  const geometryRef = useRef<BufferGeometry>(null);
 
-      // Altera a coordenada Y (altura) com base nos valores de x, y e z
-      (geom.attributes.position as PlaneBufferGeometryProps).array[i + 1] =
-        apiData.x * Math.sin(x) +
-        apiData.y * Math.sin(z) +
-        apiData.z * Math.random();
+  useEffect(() => {
+    if (meshRef.current && geometryRef.current) {
+      const geometry = meshRef.current.geometry;
+      const positionsAttribute = geometry.getAttribute('position');
+
+      if (positionsAttribute instanceof THREE.BufferAttribute) {
+        const positions = positionsAttribute;
+        const count = positions.count;
+
+        for (let i = 0; i < count; i++) {
+          const vertex = new Vector3(
+            positions.getX(i),
+            positions.getY(i),
+            positions.getZ(i)
+          );
+
+          apiData.forEach(([x, y, z]) => {
+            const distance = vertex.distanceTo(new Vector3(x, y, z));
+
+            if (distance < 10) {
+              vertex.z += 10 - distance;
+            }
+          });
+
+          positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
+        }
+
+        positions.needsUpdate = true;
+        geometry.computeVertexNormals();
+      }
     }
-
-    geom.computeVertexNormals();
-
-    return geom;
   }, [apiData]);
 
   return (
-    <Plane
-      geometry={geometry}
-      material={
-        new THREE.MeshStandardMaterial({ color: 'green', wireframe: true })
-      }
-    />
+    <mesh ref={meshRef} position={position}>
+      <planeBufferGeometry ref={geometryRef} args={[100, 100, 50, 50]} />
+      <meshStandardMaterial color="green" />
+    </mesh>
   );
 };
 

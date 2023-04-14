@@ -1,49 +1,47 @@
 import { useEffect, useRef } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { Vector3 } from 'three';
-
-const FirstPersonControls: React.FC = () => {
+interface FirstPersonControlsProps {
+  isEnabled: boolean;
+}
+const FirstPersonControls: React.FC<FirstPersonControlsProps> = ({
+  isEnabled,
+}) => {
   const { camera } = useThree();
-  const prevZRef = useRef(0);
+  const previousMouseEvent = useRef<MouseEvent>();
 
-  useFrame((_: any, delta: number) => {
-    const frontVector = new Vector3(0, 0, -1).applyQuaternion(
-      camera.quaternion
-    );
-    const sideVector = new Vector3(-1, 0, 0).applyQuaternion(camera.quaternion);
-    const speed = 5;
-
-    const direction = new Vector3();
-    direction.subVectors(frontVector, sideVector);
-
-    const zMovement = direction.z * speed * delta;
-    camera.position.z += zMovement;
-
-    const scrollDelta = camera.position.z - prevZRef.current;
-    camera.position.y += scrollDelta * 0.5;
-    prevZRef.current = camera.position.z;
-  });
+  const maxPitch = Math.PI / 3; // Limit the pitch to 60 degrees
+  const mouseSensitivity = 0.001; // Adjust the mouse sensitivity
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      const movementX = event.movementX || 0;
-      const movementY = event.movementY || 0;
-      const sensitivity = 0.002;
-
-      camera.rotation.y -= movementX * sensitivity;
-      camera.rotation.x -= movementY * sensitivity;
-      camera.rotation.x = Math.max(
-        -Math.PI / 2,
-        Math.min(Math.PI / 2, camera.rotation.x)
-      );
+      previousMouseEvent.current = event;
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [camera]);
+  }, []);
+
+  useFrame(() => {
+    if (!isEnabled || !previousMouseEvent.current) {
+      return;
+    }
+
+    const dx = previousMouseEvent.current.movementX * mouseSensitivity;
+    const dy = previousMouseEvent.current.movementY * mouseSensitivity;
+
+    camera.rotation.y -= dx;
+    camera.rotation.x -= dy;
+
+    // Clamp the rotation.x to the range [-maxPitch, maxPitch]
+    camera.rotation.x = Math.max(
+      Math.min(camera.rotation.x, maxPitch),
+      -maxPitch
+    );
+  });
 
   return null;
 };

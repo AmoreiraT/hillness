@@ -1,45 +1,53 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Sky, PerspectiveCamera } from '@react-three/drei';
+import { Sky, PerspectiveCamera, OrbitControls } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
-import Player from '../../Player';
+import Player, { ScrollContainer } from '../../Player';
+import { Vector3 } from 'three';
 import Mountain from '../../Montain/presentation';
-
 const CanvasContainer: React.FC = () => {
-  const [apiData, setApiData] = React.useState<{
-    x: number;
-    y: number;
-    z: number;
-  }>({
-    x: 1,
-    y: 1,
-    z: 1,
-  });
+  const { scrollSpeed } = useContext(ScrollContainer);
+  const [apiData, setApiData] = useState<Array<[number, number, number]>>([]);
 
-  const fetchApiData = () => {
+  useEffect(() => {
+    // Simulate an API call
     setTimeout(() => {
-      setApiData((prevData) => ({
-        x: prevData.x + Math.random() * 0.5,
-        y: prevData.y + Math.random() * 0.2,
-        z: prevData.z + 1,
-      }));
+      const mockData: [number, number, number][] = Array.from(
+        { length: 50 },
+        () => [
+          Math.random() * 100 - 50,
+          Math.random() * 100 - 50,
+          Math.random() * 10,
+        ]
+      );
+      setApiData(mockData);
     }, 1000);
-  };
-
-  React.useEffect(() => {
-    fetchApiData();
   }, []);
 
+  const handleScroll = (event: React.WheelEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    scrollSpeed.current = -event.deltaY * 0.001;
+  };
+
   return (
-    <Canvas>
-      <PerspectiveCamera position={[0, 10, 10]} makeDefault />
-      <Sky sunPosition={[0, 1, 0]} />
+    <Canvas
+      onCreated={({ gl }) => {
+        gl.setClearColor('white');
+      }}
+      camera={{ position: [0, 5, 10], near: 0.1, far: 1000 }}
+      onWheel={handleScroll}
+    >
+      <PerspectiveCamera makeDefault position={[0, 5, 20]} />
+      <Sky sunPosition={new Vector3(0, 1, 0)} />
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
-      <Physics gravity={[0, -9.81, 0]}>
+      <Physics>
         <Player />
-        <Mountain apiData={apiData} />
+        {apiData.length > 0 && (
+          <Mountain apiData={apiData} position={[0, 0, 0]} />
+        )}
       </Physics>
+      <OrbitControls />
     </Canvas>
   );
 };

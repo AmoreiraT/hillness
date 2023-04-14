@@ -1,66 +1,75 @@
-import { useRef, useEffect } from 'react';
+import {
+  useRef,
+  useEffect,
+  useState,
+  createContext,
+  MutableRefObject,
+  useContext,
+} from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useSphere } from '@react-three/cannon';
 import FirstPersonControls from '../../shared/utils/FirstPersonControls';
+import * as THREE from 'three';
+
+export const ScrollContainer = createContext<{
+  scrollSpeed: MutableRefObject<number>;
+}>({ scrollSpeed: { current: 0 } });
 
 const Player: React.FC = () => {
-  const { camera } = useThree();
-  const [ref, api] = useSphere(() => ({
-    mass: 1,
-    position: [0, 5, 0],
-    args: [1],
-    fixedRotation: true,
-  }));
+  const { camera, scene } = useThree();
+  const playerRef = useRef<THREE.Mesh>(null);
+  const { scrollSpeed } = useContext(ScrollContainer);
 
-  const velocity = useRef([0, 0, 0]);
-  const scrollSpeed = useRef(0);
-  const mountainSize = 50; // Define the mountain size
+  const getMountainHeightAt = (x: number, z: number): number => {
+    const mountain = scene.getObjectByName('Mountain');
+    if (!mountain) return 0;
 
-  useEffect(() => {
-    const unsubscribe = api.velocity.subscribe((newVelocity) => {
-      velocity.current = newVelocity;
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, [api.velocity]);
+    const mountainGeometry = (mountain as THREE.Mesh).geometry;
+    const positionAttribute = mountainGeometry.getAttribute(
+      'position'
+    ) as THREE.BufferAttribute;
 
-  useEffect(() => {
-    const handleScroll = (event: WheelEvent) => {
-      scrollSpeed.current = event.deltaY * -0.01;
-    };
+    let closestVertexIndex = Math.floor(positionAttribute.count / 2) * 3;
+    let closestDistance = Infinity;
 
-    window.addEventListener('wheel', handleScroll);
+    for (let i = 0; i < positionAttribute.count; i += 3) {
+      const vx = positionAttribute.getX(i);
+      const vz = positionAttribute.getZ(i);
+      const distance = Math.hypot(x - vx, z - vz);
 
-    return () => {
-      window.removeEventListener('wheel', handleScroll);
-    };
-  }, []);
-
-  useFrame(() => {
-    const newPosition = ref.current!.position.clone();
-    newPosition.z += scrollSpeed.current;
-
-    // Check if the new position is within the mountain boundaries
-    if (
-      newPosition.x >= -mountainSize / 2 &&
-      newPosition.x <= mountainSize / 2 &&
-      newPosition.z >= -mountainSize / 2 &&
-      newPosition.z <= mountainSize / 2
-    ) {
-      ref.current!.position.copy(newPosition);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestVertexIndex = i;
+      }
     }
 
-    camera.position.copy(ref.current!.position);
-    camera.position.y += 2;
-    scrollSpeed.current *= 0.9; // Slow down the scroll speed gradually
+    return positionAttribute.getY(closestVertexIndex);
+  };
+
+  useFrame(({ clock }) => {
+    if (!playerRef.current) return;
+
+    const speed = 0.1;
+    const delta = clock.getDelta();
+
+    const direction = new THREE.Vector3(0, 0, -1)
+      .applyQuaternion(camera.quaternion)
+      .multiplyScalar(delta * speed * scrollSpeed.current);
+    const newPosition = playerRef.current.position.clone().add(direction);
+    newPosition.y = getMountainHeightAt(newPosition.x, newPosition.z) + 0.5;
+
+    playerRef.current.position.copy(newPosition);
+    camera.position.copy(newPosition.clone().add(new THREE.Vector3(0, 1.8, 0)));
+
+    scrollSpeed.current *= 0.9;
   });
 
   return (
-    <>
-      <FirstPersonControls />
-      <mesh ref={() => ref} />
-    </>
+    <mesh ref={playerRef} position={[0, 0, 0]}>
+      <FirstPersonControls isEnabled={false} />
+      <boxBufferGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color=" 0xffffff" />
+    </mesh>
   );
 };
 

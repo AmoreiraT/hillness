@@ -54,6 +54,7 @@ specifiers:
   react-is: ^18.2.0
   react-query: ^3.39.3
   react-router-dom: ^6.9.0
+  react-three-fiber: ^6.0.13
   require-from-string: ^2.0.2
   save-dev: 0.0.1-security
   styled-components: ^5.3.9
@@ -95,6 +96,7 @@ dependencies:
   react-is: 18.2.0
   react-query: 3.39.3_biqbaboplfbrettd7655fr4n2y
   react-router-dom: 6.10.0_biqbaboplfbrettd7655fr4n2y
+  react-three-fiber: 6.0.13_73epb4osyabtjyiaeamriercbi
   require-from-string: 2.0.2
   save-dev: 0.0.1-security
   styled-components: 5.3.9_7i5myeigehqah43i5u7wbekgba
@@ -5994,6 +5996,28 @@ packages:
     dependencies:
       '@remix-run/router': 1.5.0
       react: 18.2.0
+    dev: false
+
+  /react-three-fiber/6.0.13_73epb4osyabtjyiaeamriercbi:
+    resolution: {integrity: sha512-uShQnkMVLvnzwf3YzY9mnzCnpmLpvTQkc0ycrtwk8fyjXmZt2695tLn3tufPF6uxq06UKJRKJcjCVCMXyUcEPQ==}
+    deprecated: react-three-fiber has been deprecated, please use @react-three/fiber from now on
+    peerDependencies:
+      react: '>=17.0'
+      react-dom: '>=17.0'
+      three: '>=0.126'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+    dependencies:
+      '@react-three/fiber': 8.12.0_73epb4osyabtjyiaeamriercbi
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      three: 0.150.1
+    transitivePeerDependencies:
+      - expo
+      - expo-asset
+      - expo-gl
+      - react-native
     dev: false
 
   /react-transition-group/4.4.5_biqbaboplfbrettd7655fr4n2y:
