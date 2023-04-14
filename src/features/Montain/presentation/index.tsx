@@ -1,58 +1,42 @@
-// Mountain.tsx
+import React, { useMemo } from 'react';
+import { PlaneBufferGeometryProps, useThree } from '@react-three/fiber';
+import { PlaneGeometry, MeshStandardMaterial, DoubleSide } from 'three';
 
-import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
-import { Mesh, BufferGeometry } from 'three';
-import { Vector3 } from 'three';
+const Mountain: React.FC<{ apiData: { x: number; y: number; z: number } }> = ({
+  apiData,
+}) => {
+  const { viewport } = useThree();
 
-interface MountainProps {
-  apiData: Array<[number, number, number]>;
-  position: [number, number, number];
-}
+  const geometry = useMemo(() => {
+    const geo = new PlaneGeometry(
+      viewport.width,
+      viewport.height,
+      apiData.x,
+      apiData.y
+    );
+    geo.rotateX(-Math.PI / 2);
 
-const Mountain: React.FC<MountainProps> = ({ apiData, position }) => {
-  const meshRef = useRef<Mesh>(null);
-  const geometryRef = useRef<BufferGeometry>(null);
+    const positions = (geo.attributes.position as PlaneBufferGeometryProps)
+      .array as number[];
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+      const z = positions[i + 2];
 
-  useEffect(() => {
-    if (meshRef.current && geometryRef.current) {
-      const geometry = meshRef.current.geometry;
-      const positionsAttribute = geometry.getAttribute('position');
-
-      if (positionsAttribute instanceof THREE.BufferAttribute) {
-        const positions = positionsAttribute;
-        const count = positions.count;
-
-        for (let i = 0; i < count; i++) {
-          const vertex = new Vector3(
-            positions.getX(i),
-            positions.getY(i),
-            positions.getZ(i)
-          );
-
-          apiData.forEach(([x, y, z]) => {
-            const distance = vertex.distanceTo(new Vector3(x, y, z));
-
-            if (distance < 10) {
-              vertex.z += 10 - distance;
-            }
-          });
-
-          positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
-        }
-
-        positions.needsUpdate = true;
-        geometry.computeVertexNormals();
-      }
+      const offset = (apiData.z * z) / viewport.height;
+      positions[i + 1] = y + apiData.y * offset;
     }
-  }, [apiData]);
+    return geo;
+  }, [apiData, viewport.height, viewport.width]);
 
-  return (
-    <mesh ref={meshRef} position={position}>
-      <planeBufferGeometry ref={geometryRef} args={[100, 100, 50, 50]} />
-      <meshStandardMaterial color="green" />
-    </mesh>
-  );
+  const material = useMemo(() => {
+    return new MeshStandardMaterial({
+      color: 0x00ff00,
+      side: DoubleSide,
+    });
+  }, []);
+
+  return <mesh geometry={geometry} material={material} position={[0, -1, 0]} />;
 };
 
 export default Mountain;

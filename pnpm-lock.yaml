@@ -59,6 +59,7 @@ specifiers:
   save-dev: 0.0.1-security
   styled-components: ^5.3.9
   three: ^0.150.1
+  three-stdlib: ^2.21.8
   ts-shader-loader: ^2.0.2
   typescript: ^4.9.3
   vite: ^4.2.0
@@ -100,6 +101,7 @@ dependencies:
   require-from-string: 2.0.2
   save-dev: 0.0.1-security
   styled-components: 5.3.9_7i5myeigehqah43i5u7wbekgba
+  three-stdlib: 2.21.8_three@0.150.1
   webpack: 5.79.0
   yup: 1.1.0
   zod: 3.21.4
@@ -2033,6 +2035,41 @@ packages:
 
   /@react-three/fiber/8.12.0_73epb4osyabtjyiaeamriercbi:
     resolution: {integrity: sha512-o6DkNtNHqcOFRbxaiY5xayelE/9+Z0z9wWu5awqjVbc0c/1QM6AttJH6rKW0U/O6LWxSfxDTARXVzknZqpDJ7A==}
+    peerDependencies:
+      expo: '>=43.0'
+      expo-asset: '>=8.4'
+      expo-gl: '>=11.0'
+      react: '>=18.0'
+      react-dom: '>=18.0'
+      react-native: '>=0.64'
+      three: '>=0.133'
+    peerDependenciesMeta:
+      expo:
+        optional: true
+      expo-asset:
+        optional: true
+      expo-gl:
+        optional: true
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.21.0
+      '@types/react-reconciler': 0.26.7
+      its-fine: 1.1.0_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-reconciler: 0.27.0_react@18.2.0
+      react-use-measure: 2.1.1_biqbaboplfbrettd7655fr4n2y
+      scheduler: 0.21.0
+      suspend-react: 0.0.8_react@18.2.0
+      three: 0.150.1
+      zustand: 3.7.2_react@18.2.0
+    dev: false
+
+  /@react-three/fiber/8.12.1_73epb4osyabtjyiaeamriercbi:
+    resolution: {integrity: sha512-5KHuXAQsvR7drbL33G/3Fzj9+DkVvSrsQfebLnuVtzQdPApoom4rH8MixTakhGsTheedY1/2s4H1GS82V0+JeA==}
     peerDependencies:
       expo: '>=43.0'
       expo-asset: '>=8.4'
@@ -6009,7 +6046,7 @@ packages:
       react-dom:
         optional: true
     dependencies:
-      '@react-three/fiber': 8.12.0_73epb4osyabtjyiaeamriercbi
+      '@react-three/fiber': 8.12.1_73epb4osyabtjyiaeamriercbi
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       three: 0.150.1
