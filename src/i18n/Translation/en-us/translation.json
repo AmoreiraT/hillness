@@ -1,0 +1,13 @@
+{
+  "hello": "Hello",
+  "portuguese": "Portuguese",
+  "english": "English",
+  "spanish": "Spanish",
+  "currentLanguage": "English",
+  "cardholders": "Cardholders",
+  "create-cardholder": "Create cardholder",
+  "create-multiple-cardholders": "Create multiple cardholders",
+  "invoice-and-payments": "Invoices and Payments",
+  "travel-notification": "Travel notification",
+  "locales": "en"
+}
