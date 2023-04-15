@@ -21,6 +21,9 @@ export default defineConfig({
       { find: '@stories', replacement: path.resolve(__dirname, 'stories') },
     ],
   },
+  build: {
+    sourcemap: true,
+  },
   server: {
     port: 3000,
   },
