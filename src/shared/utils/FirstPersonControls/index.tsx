@@ -1,49 +1,46 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import { Vector3 } from 'three';
 
-const FirstPersonControls: React.FC = () => {
+const FirstPersonControls = () => {
   const { camera } = useThree();
-  const prevZRef = useRef(0);
-
-  useFrame((_: any, delta: number) => {
-    const frontVector = new Vector3(0, 0, -1).applyQuaternion(
-      camera.quaternion
-    );
-    const sideVector = new Vector3(-1, 0, 0).applyQuaternion(camera.quaternion);
-    const speed = 5;
-
-    const direction = new Vector3();
-    direction.subVectors(frontVector, sideVector);
-
-    const zMovement = direction.z * speed * delta;
-    camera.position.z += zMovement;
-
-    const scrollDelta = camera.position.z - prevZRef.current;
-    camera.position.y += scrollDelta * 0.5;
-    prevZRef.current = camera.position.z;
-  });
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [mouseMovement, setMouseMovement] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      const movementX = event.movementX || 0;
-      const movementY = event.movementY || 0;
-      const sensitivity = 0.002;
-
-      camera.rotation.y -= movementX * sensitivity;
-      camera.rotation.x -= movementY * sensitivity;
-      camera.rotation.x = Math.max(
-        -Math.PI / 2,
-        Math.min(Math.PI / 2, camera.rotation.x)
-      );
+    const handleMouseDown = () => {
+      setIsMouseDown(true);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
+    const handleMouseUp = () => {
+      setIsMouseDown(false);
+    };
+
+    const handleMouseMove = (e: { movementX: number; movementY: number }) => {
+      if (isMouseDown) {
+        setMouseMovement({
+          x: e.movementX / 100,
+          y: -e.movementY / 100,
+        });
+      }
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [camera]);
+  }, [isMouseDown]);
+
+  useFrame(() => {
+    if (isMouseDown) {
+      camera.rotation.x += mouseMovement.y;
+      camera.rotation.y += mouseMovement.x;
+    }
+  });
 
   return null;
 };
