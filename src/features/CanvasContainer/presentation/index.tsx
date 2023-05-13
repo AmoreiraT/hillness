@@ -1,42 +1,105 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Sky, PerspectiveCamera } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
 import Player from '../../Player';
 import Mountain from '../../Mountain/presentation';
+import axios from 'axios';
+import { useFetchCovidDataRepository } from '../repository';
+import { useCovidDataStore } from './state/useCovid';
+import { useFetchCovidDataHook } from '../commands/covid-command';
+import MountainExample from '../../Mountain/presentation/example';
 
 const CanvasContainer: React.FC = () => {
-  const [apiData, setApiData] = React.useState<
-    { day: number; deaths: number; cases: number }[]
-  >([]);
+  // const [covidData, setCovidData] = React.useState<
+  //   {
+  //     date: number;
+  //     cases: number;
+  //     deaths: number;
+  //   }[]
+  // >([]);
 
-  const fetchApiData = () => {
-    const startDate = new Date('2020-02-26'); // Início da COVID-19 no Brasil
-    const endDate = new Date('2022-12-31');
-    const oneDay = 24 * 60 * 60 * 1000;
-    const daysBetween = Math.round(
-      Math.abs((startDate.getTime() - endDate.getTime()) / oneDay)
-    );
-    const data = [];
+  // const CovidDataRepository = useFetchCovidDataRepository();
+  // const CovidDataState = useCovidDataStore();
+  // const { fetch, isLoading } = useFetchCovidDataHook(
+  //   CovidDataRepository,
+  //   CovidDataState
+  // );
 
-    for (let i = 0; i <= daysBetween; i++) {
-      const currentDate = new Date(startDate.getTime() + i * oneDay);
-      const cases = Math.round(Math.pow(1.2, i));
-      const deaths = Math.round(cases / 2);
-      data.push({
-        day: i,
-        deaths,
-        cases,
-      });
-    }
+  // const [isLoading, setIsLoading] = React.useState(true);
 
-    setApiData(data);
-  };
+  // function sumCasesAndDeaths(data: any[]) {
+  //   return data.reduce(
+  //     (accumulator, currentState) => {
+  //       accumulator.cases += currentState.cases;
+  //       accumulator.deaths += currentState.deaths;
+  //       return accumulator;
+  //     },
+  //     { cases: 0, deaths: 0 }
+  //   );
+  // }
 
-  React.useEffect(() => {
-    fetchApiData();
-  }, []);
+  // async function fetchCovidData() {
+  //   const startDate = new Date('2020-02-25'); // Primeiro caso de COVID-19 no Brasil
+  //   const endDate = new Date(); // Data de hoje
+  //   const oneDay = 24 * 60 * 60 * 1000; // Milissegundos em um dia
+  //   const covidDArray = [];
 
+  //   for (
+  //     let currentDate = startDate;
+  //     currentDate <= endDate;
+  //     currentDate = new Date(currentDate.getTime() + oneDay)
+  //   ) {
+  //     const formattedDate = currentDate
+  //       .toISOString()
+  //       .split('T')[0]
+  //       .replace(/-/g, '');
+  //     const response = await axios.get(
+  //       `https://covid19-brazil-api.now.sh/api/report/v1/brazil/${formattedDate}`
+  //     );
+
+  //     if (response.data && response.data.data) {
+  //       const { cases, deaths } = sumCasesAndDeaths(response.data.data);
+  //       covidDArray.push({ date: formattedDate, cases, deaths });
+  //     }
+  //     // console.log(covidDArray);
+  //   }
+
+  //   setCovidData(
+  //     covidDArray.map((item, index) => ({
+  //       date: parseInt(item.date, 10),
+  //       cases: parseInt(item.deaths, 10),
+  //       deaths: parseInt(item.cases, 10),
+  //     }))
+  //   );
+  //   console.log(covidDArray);
+
+  //   return covidDArray;
+  // }
+
+  // React.useEffect(() => {
+  //   fetchCovidData();
+  //   // .then((data) => {
+  //   //   console.log(data);
+  //   //   setCovidData(
+  //   //     data.map((item, index) => ({
+  //   //       date: parseInt(item.date, 10),
+  //   //       cases: parseInt(item.deaths, 10),
+  //   //       deaths: parseInt(item.cases, 10),
+  //   //     }))
+  //   //   );
+  //   //   setIsLoading(false);
+  //   // })
+  //   // .catch((error) => {
+  //   //   console.error('Error fetching COVID-19 data:', error);
+  //   // });
+  //   console.log(covidData);
+  // }, [covidData]);
+
+  // useEffect(() => {
+  //   fetch();
+  //   console.log(CovidDataState.covidData);
+  // }, [fetch]);
   return (
     <Canvas>
       <PerspectiveCamera position={[0, 10, 10]} makeDefault />
@@ -45,7 +108,7 @@ const CanvasContainer: React.FC = () => {
       <pointLight position={[10, 10, 10]} />
       <Physics gravity={[0, -9.81, 0]}>
         <Player />
-        <Mountain apiData={apiData} />
+        <MountainExample />
       </Physics>
     </Canvas>
   );
