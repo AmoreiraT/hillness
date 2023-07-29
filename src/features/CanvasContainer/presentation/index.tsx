@@ -9,6 +9,7 @@ import { useFetchCovidDataRepository } from '../repository';
 import { useCovidDataStore } from './state/useCovid';
 import { useFetchCovidDataHook } from '../commands/covid-command';
 import MountainExample from '../../Mountain/presentation/example';
+import PointCloud from '../../Mountain/presentation';
 
 const CanvasContainer: React.FC = () => {
   // const [covidData, setCovidData] = React.useState<
@@ -108,7 +109,7 @@ const CanvasContainer: React.FC = () => {
       <pointLight position={[10, 10, 10]} />
       <Physics gravity={[0, -9.81, 0]}>
         <Player />
-        <MountainExample />
+        <Mountain />
       </Physics>
     </Canvas>
   );
