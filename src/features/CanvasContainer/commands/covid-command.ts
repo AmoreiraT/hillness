@@ -15,7 +15,7 @@ export const useFetchCovidDataCommand = ({
   repository: FetchCovidDataRepository;
   state: CovidDataState;
 }) => {
-  const onSuccess = (res: CovidDataEntity[]) => {
+  const onSuccess = (res: [CovidDataEntity]) => {
     state.setCovidData(res);
   };
   const mutation = useMutation(async () => repository.fetchCovidData(), {

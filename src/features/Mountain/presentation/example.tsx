@@ -16,7 +16,7 @@ function generateGeometry(
   const faces: number[] = [];
 
   apiData.forEach((data, index) => {
-    vertices.push(data.deaths, data.cases, data.date);
+    vertices.push(data.deaths, data.cases, index);
 
     if (index > 0) {
       // Cria faces triangulares conectando os pontos
@@ -48,7 +48,7 @@ const MountainExample: React.FC = () => {
   }, [fetch]);
 
   const geometry = useMemo(() => {
-    if (isLoading || CovidDataState.covidData.length === 0) {
+    if (isLoading || CovidDataState.covidData.length < 2) {
       return new THREE.BufferGeometry();
     }
     return generateGeometry(CovidDataState.covidData);
