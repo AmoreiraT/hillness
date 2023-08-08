@@ -1,41 +1,53 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Sky, PerspectiveCamera } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
 import Player from '../../Player';
 import Mountain from '../../Mountain/presentation';
+import axios from 'axios';
+import { useFetchCovidDataRepository } from '../repository';
+import { useCovidDataStore } from './state/useCovid';
+import { useFetchCovidDataHook } from '../commands/covid-command';
 
 const CanvasContainer: React.FC = () => {
+  const CovidDataRepository = useFetchCovidDataRepository();
+  const CovidDataState = useCovidDataStore();
+  const { fetch, isLoading } = useFetchCovidDataHook(
+    CovidDataRepository,
+    CovidDataState
+  );
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
   const [apiData, setApiData] = React.useState<
     { day: number; deaths: number; cases: number }[]
   >([]);
 
-  const fetchApiData = () => {
-    const startDate = new Date('2020-02-26'); // Início da COVID-19 no Brasil
-    const endDate = new Date('2022-12-31');
-    const oneDay = 24 * 60 * 60 * 1000;
-    const daysBetween = Math.round(
-      Math.abs((startDate.getTime() - endDate.getTime()) / oneDay)
-    );
-    const data = [];
-
-    for (let i = 0; i <= daysBetween; i++) {
-      const currentDate = new Date(startDate.getTime() + i * oneDay);
-      const cases = Math.round(Math.pow(1.2, i));
-      const deaths = Math.round(cases / 2);
-      data.push({
-        day: i,
-        deaths,
-        cases,
-      });
+  const data: { day: number; deaths: number; cases: number }[] = useMemo(() => {
+    let dataT: { day: number; deaths: number; cases: number }[] = [];
+    if (isLoading || CovidDataState.covidData.length < 2) {
+      return dataT;
     }
+    CovidDataState.covidData.forEach((c, i) => {
+      dataT.push({
+        day: i,
+        deaths: c.deaths,
+        cases: c.cases,
+      });
+    });
+    setApiData(dataT);
+    return dataT;
+  }, [CovidDataState.covidData, isLoading]);
 
-    setApiData(data);
-  };
+  // const fetchApiData = () => {
+  //   setApiData(data);
+  // };
 
-  React.useEffect(() => {
-    fetchApiData();
-  }, []);
+  // useEffect(() => {
+  //   fetchApiData();
+  // }, []);
 
   return (
     <Canvas>
