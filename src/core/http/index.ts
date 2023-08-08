@@ -1,12 +1,12 @@
 import { TimeoutError } from '@core/error/timeout';
 import axios from 'axios';
 
-import { HttpRequest, EpmResponse, HttpResponse } from './protocols';
+import { HttpRequest, ApiResponse, HttpResponse } from './protocols';
 
 export const useHttpClient = () => {
-  const sendEpmRequest = async <T extends object>(requestData: HttpRequest) => {
+  const sendApiRequest = async <T extends object>(requestData: HttpRequest) => {
     return axios
-      .request<EpmResponse<T>>({
+      .request<ApiResponse<T>>({
         url: requestData.url,
         method: requestData.method,
         data: requestData.body,
@@ -14,7 +14,7 @@ export const useHttpClient = () => {
         timeout: 30000, // 30 sec
       })
       .then((res) => {
-        return res as EpmResponse<T>;
+        return res as ApiResponse<T>;
       })
       .catch((err) => {
         return err as TimeoutError;
@@ -40,5 +40,5 @@ export const useHttpClient = () => {
       });
   };
 
-  return { sendEpmRequest, sendRequest } as const;
+  return { sendApiRequest, sendRequest } as const;
 };

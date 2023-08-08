@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Sky, PerspectiveCamera } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
 import Player from '../../Player';
 import Mountain from '../../Montain/presentation';
+import { useFetchCovidDataRepository } from '../repository';
+import { useCovidDataStore } from './state/useCovid';
+import { useFetchCovidDataHook } from '../commands/covid-command';
 
 const CanvasContainer: React.FC = () => {
   const [apiData, setApiData] = React.useState<{
@@ -16,17 +19,30 @@ const CanvasContainer: React.FC = () => {
     z: 1,
   });
 
+  const CovidDataRepository = useFetchCovidDataRepository();
+  const CovidDataState = useCovidDataStore();
+  const { fetch, isLoading } = useFetchCovidDataHook(
+    CovidDataRepository,
+    CovidDataState
+  );
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
   const fetchApiData = () => {
     setTimeout(() => {
-      setApiData((prevData) => ({
-        x: prevData.x + Math.random() * 0.5,
-        y: prevData.y + Math.random() * 0.2,
-        z: prevData.z + 1,
-      }));
+      CovidDataState.covidData.forEach((data, i) => {
+        setApiData({
+          x: data.cases,
+          y: data.deaths,
+          z: i,
+        });
+      });
     }, 1000);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchApiData();
   }, []);
 
@@ -38,7 +54,7 @@ const CanvasContainer: React.FC = () => {
       <pointLight position={[10, 10, 10]} />
       <Physics gravity={[0, -9.81, 0]}>
         <Player />
-        <Mountain apiData={apiData} />
+        <Mountain apiData={apiData} CovidDataState={CovidDataState.covidData} />
       </Physics>
     </Canvas>
   );
