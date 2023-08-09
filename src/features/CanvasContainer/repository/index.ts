@@ -20,7 +20,7 @@ export const useFetchCovidDataRepository = (): FetchCovidDataRepository => {
     );
   }
   const fetchCovidData = async (): Promise<[CovidDataEntity]> => {
-    const response = await axios.get(`http://localhost:3002/covid/db`);
+    const response = await axios.get(`http://localhost:3002/covid/getDataBase`);
 
     if (response.data) {
       return response.data.map(mapCovidDataDtoToEntity);
