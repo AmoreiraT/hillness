@@ -29,7 +29,7 @@ const generateHeightMap = (
       let height = 0;
       if (currentData) {
         height =
-          (currentData.deaths * 0.01 + currentData.cases * 0.005) *
+          (currentData.deaths * 0.01 + currentData.cases * 0.0005) *
           (1 + noise * 0.5);
       }
 
