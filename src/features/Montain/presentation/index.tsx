@@ -1,12 +1,26 @@
 // Mountain.tsx
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Plane } from '@react-three/drei';
 import { PlaneBufferGeometryProps } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useFetchCovidDataRepository } from '../../CanvasContainer/repository';
+import { useCovidDataStore } from '../../CanvasContainer/presentation/state/useCovid';
+import { useFetchCovidDataHook } from '../../CanvasContainer/commands/covid-command';
 
 const Mountain: React.FC<{ apiData: { x: number; y: number; z: number } }> = ({
   apiData,
 }) => {
+    const CovidDataRepository = useFetchCovidDataRepository();
+    const CovidDataState = useCovidDataStore();
+    const { fetch, isLoading } = useFetchCovidDataHook(
+      CovidDataRepository,
+      CovidDataState
+    );
+
+    useEffect(() => {
+      fetch();
+    }, [fetch]);
+    
   const geometry = useMemo(() => {
     const geom = new THREE.PlaneGeometry(50, 50, 50, 50);
     geom.rotateX(-Math.PI / 2);
