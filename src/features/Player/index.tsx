@@ -52,7 +52,7 @@ const Player: React.FC = () => {
     }
 
     camera.position.copy(ref.current!.position);
-    camera.position.y += 2;
+    camera.position.y += -2;
     scrollSpeed.current *= 0.9; // Slow down the scroll speed gradually
   });
 
