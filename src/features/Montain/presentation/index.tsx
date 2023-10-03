@@ -1,7 +1,7 @@
 // Mountain.tsx
 import React, { useEffect, useMemo } from 'react';
 import { Plane } from '@react-three/drei';
-import { PlaneBufferGeometryProps } from '@react-three/fiber';
+import { Matrix4, PlaneBufferGeometryProps } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useFetchCovidDataRepository } from '../../CanvasContainer/repository';
 import { useCovidDataStore } from '../../CanvasContainer/presentation/state/useCovid';
@@ -16,7 +16,7 @@ const Mountain: React.FC<{
     const geom = new THREE.PlaneGeometry(50, 50, 50, 50);
     geom.rotateX(-Math.PI / 2);
 
-    // Atualiza a geometria do plano com base nos dados da API
+    // // Atualiza a geometria do plano com base nos dados da API
     for (
       let i = 0;
       i < (geom.attributes.position as PlaneBufferGeometryProps).array.length;
@@ -34,13 +34,33 @@ const Mountain: React.FC<{
         apiData.z * Math.random();
     }
 
+    const points = [
+      new THREE.Vector3(-1, 1, -1), //c
+      new THREE.Vector3(-1, -1, 1), //b
+      new THREE.Vector3(1, 1, 1), //a
+
+      new THREE.Vector3(1, 1, 1), //a
+      new THREE.Vector3(1, -1, -1), //d
+      new THREE.Vector3(-1, 1, -1), //c
+
+      new THREE.Vector3(-1, -1, 1), //b
+      new THREE.Vector3(1, -1, -1), //d
+      new THREE.Vector3(1, 1, 1), //a
+
+      new THREE.Vector3(-1, 1, -1), //c
+      new THREE.Vector3(1, -1, -1), //d
+      new THREE.Vector3(-1, -1, 1), //b
+    ];
+
+    geom.setFromPoints(points);
     geom.computeVertexNormals();
 
     return geom;
-  }, [apiData]);
+  }, [CovidDataState]);
 
   return (
     <Plane
+      isMesh
       geometry={geometry}
       material={
         new THREE.MeshStandardMaterial({ color: 'green', wireframe: true })
