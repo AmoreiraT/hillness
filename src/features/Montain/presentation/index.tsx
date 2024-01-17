@@ -103,7 +103,7 @@ const generateY = (
 const Mountain: React.FC<{
   apiData: { day: number; deaths: number; cases: number }[];
 }> = ({ apiData }) => {
-  const width = 50;
+  const width = 100;
   const depth = 50;
   const heightMap = useMemo(
     () => generateHeightMap(width, depth, apiData),
@@ -121,9 +121,8 @@ const Mountain: React.FC<{
         i,
         heightMap[i]
       );
-      // (geom.attributes.position as PlaneBufferGeometryProps).setX(i, getX[i]);
-      // (geom.attributes.position as PlaneBufferGeometryProps).setY(i, getY[i]);
-      // (geom.attributes.position as PlaneBufferGeometryProps).setY(i, i);
+      // (geom.attributes.position as PlaneBufferGeometryProps).setX( getX[i],   getX[i]);
+      // (geom.attributes.position as PlaneBufferGeometryProps).setY( getY[i],   getY[i]);
     }
     geom.computeVertexNormals();
 
