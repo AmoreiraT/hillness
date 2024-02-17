@@ -1,9 +1,7 @@
 // Mountain.tsx
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import rockDiffuseTexture from '@assets/textures/rock_diffuse.jpg';
-import rockNormalTexture from '@assets/textures/rock_normal.jpg';
-import rockAOTexture from '@assets/textures/rock_ao.jpg';
+
 import SimplexNoise from 'simplex-noise';
 import useTextureLoader from './hooks/useTextureLoader';
 import { PlaneBufferGeometryProps } from '@react-three/fiber';
